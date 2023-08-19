@@ -1,4 +1,3 @@
-
 document.getElementById("userForm").addEventListener("submit", function(event) {
     event.preventDefault();
     
@@ -20,6 +19,13 @@ document.getElementById("userForm").addEventListener("submit", function(event) {
     updateUsersList();
 });
 
+function deleteUser(index) {
+    var storedUsers = JSON.parse(localStorage.getItem("users")) || [];
+    storedUsers.splice(index, 1);
+    localStorage.setItem("users", JSON.stringify(storedUsers));
+    updateUsersList();
+}
+
 function updateUsersList() {
     var userList = document.getElementById("userList");
     userList.innerHTML = "";
@@ -29,8 +35,14 @@ function updateUsersList() {
         var user = storedUsers[i];
         var listItem = document.createElement("li");
         listItem.textContent = "Name: " + user.name + ", Email: " + user.email + ", Phone: " + user.phone;
+        
+        var deleteButton = document.createElement("button");
+        deleteButton.textContent = "Delete";
+        deleteButton.addEventListener("click", deleteUser.bind(null, i));
+        
+        listItem.appendChild(deleteButton);
         userList.appendChild(listItem);
     }
 }
 
-
+updateUsersList();
