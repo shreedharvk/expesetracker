@@ -1,90 +1,82 @@
-document.getElementById("userForm").addEventListener("submit", function(event) {
+// new.js
+document.getElementById("expenseForm").addEventListener("submit", function(event) {
     event.preventDefault();
     
-    var name = document.getElementById("name").value;
-    var email = document.getElementById("email").value;
-    var phone = document.getElementById("phone").value;
+    var amount = document.getElementById("amount").value;
+    var description = document.getElementById("description").value;
+    var category = document.getElementById("category").value;
     
-    var user = {
-        name: name,
-        email: email,
-        phone: phone
+    var expense = {
+        amount: amount,
+        description: description,
+        category: category
     };
     
-    var storedUsers = JSON.parse(localStorage.getItem("users")) || [];
-    storedUsers.push(user);
-    localStorage.setItem("users", JSON.stringify(storedUsers));
+    var storedExpenses = JSON.parse(localStorage.getItem("expenses")) || [];
+    storedExpenses.push(expense);
+    localStorage.setItem("expenses", JSON.stringify(storedExpenses));
     
-    document.getElementById("userForm").reset();
-    updateUsersList();
+    document.getElementById("expenseForm").reset();
+    updateExpenseList();
 });
 
-document.getElementById("saveEditButton").addEventListener("click", function() {
-    var editName = document.getElementById("editName").value;
-    var editEmail = document.getElementById("editEmail").value;
-    var editPhone = document.getElementById("editPhone").value;
+function editExpense(index) {
+    var storedExpenses = JSON.parse(localStorage.getItem("expenses")) || [];
+    var expenseToEdit = storedExpenses[index];
 
-    var storedUsers = JSON.parse(localStorage.getItem("users"));
-    var indexToEdit = parseInt(document.getElementById("editForm").getAttribute("data-index"));
+    document.getElementById("amount").value = expenseToEdit.amount;
+    document.getElementById("description").value = expenseToEdit.description;
+    document.getElementById("category").value = expenseToEdit.category;
 
-    storedUsers[indexToEdit].name = editName;
-    storedUsers[indexToEdit].email = editEmail;
-    storedUsers[indexToEdit].phone = editPhone;
-
-    localStorage.setItem("users", JSON.stringify(storedUsers));
-    updateUsersList();
-    document.getElementById("editForm").reset();
-});
-
-function editUser(index) {
-    var storedUsers = JSON.parse(localStorage.getItem("users")) || [];
-    var userToEdit = storedUsers[index];
-
-    document.getElementById("editName").value = userToEdit.name;
-    document.getElementById("editEmail").value = userToEdit.email;
-    document.getElementById("editPhone").value = userToEdit.phone;
-
-    document.getElementById("editForm").setAttribute("data-index", index);
+    document.getElementById("expenseForm").setAttribute("data-index", index);
 }
 
-function deleteUser(index) {
-    var storedUsers = JSON.parse(localStorage.getItem("users"));
-    storedUsers.splice(index, 1);
-    localStorage.setItem("users", JSON.stringify(storedUsers));
-    updateUsersList();
+function deleteExpense(index) {
+    var storedExpenses = JSON.parse(localStorage.getItem("expenses"));
+    storedExpenses.splice(index, 1);
+    localStorage.setItem("expenses", JSON.stringify(storedExpenses));
+    updateExpenseList();
 }
 
-function updateUsersList() {
-    var userList = document.getElementById("userList");
-    userList.innerHTML = "";
+function updateExpenseList() {
+    var expenseList = document.getElementById("expenseList");
+    expenseList.innerHTML = "";
 
-    var storedUsers = JSON.parse(localStorage.getItem("users")) || [];
-    for (var i = 0; i < storedUsers.length; i++) {
-        var user = storedUsers[i];
+    var storedExpenses = JSON.parse(localStorage.getItem("expenses")) || [];
+    for (var i = 0; i < storedExpenses.length; i++) {
+        var expense = storedExpenses[i];
         var listItem = document.createElement("li");
-        listItem.id = "userListItem_" + i;
+        listItem.id = "expenseListItem_" + i;
 
         var editButton = document.createElement("button");
         editButton.textContent = "Edit";
-        editButton.addEventListener("click", function(index) {
-            return function() {
-                editUser(index);
-            };
-        }(i));
+        editButton.setAttribute("data-index", i);
+        editButton.classList.add("editButton");
 
         var deleteButton = document.createElement("button");
         deleteButton.textContent = "Delete";
-        deleteButton.addEventListener("click", function(index) {
-            return function() {
-                deleteUser(index);
-            };
-        }(i));
+        deleteButton.setAttribute("data-index", i);
+        deleteButton.classList.add("deleteButton");
 
-        listItem.textContent = "Name: " + user.name + ", Email: " + user.email + ", Phone: " + user.phone;
-        listItem.appendChild(deleteButton);
+        listItem.textContent = "Amount: " + expense.amount + ", Description: " + expense.description + ", Category: " + expense.category;
         listItem.appendChild(editButton);
-        userList.appendChild(listItem);
+        listItem.appendChild(deleteButton);
+        expenseList.appendChild(listItem);
     }
 }
 
-updateUsersList();
+document.getElementById("expenseList").addEventListener("click", function(event) {
+    var target = event.target;
+
+    if (target.tagName === "BUTTON") {
+        var index = parseInt(target.getAttribute("data-index"));
+
+        if (target.classList.contains("editButton")) {
+            editExpense(index);
+        } else if (target.classList.contains("deleteButton")) {
+            deleteExpense(index);
+        }
+    }
+});
+
+updateExpenseList();
